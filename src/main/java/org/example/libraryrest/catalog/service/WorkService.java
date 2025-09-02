@@ -1,8 +1,12 @@
 package org.example.libraryrest.catalog.service;
 
+import org.example.libraryrest.catalog.dtos.EditionDto;
 import org.example.libraryrest.catalog.dtos.Mapper;
 import org.example.libraryrest.catalog.dtos.WorkDto;
+import org.example.libraryrest.catalog.model.Edition;
 import org.example.libraryrest.catalog.model.Work;
+import org.example.libraryrest.catalog.repository.EditionRepository;
+import org.example.libraryrest.catalog.repository.PublisherRepository;
 import org.example.libraryrest.catalog.repository.WorkRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +17,13 @@ import java.util.Optional;
 @Service
 public class WorkService {
     private final WorkRepository workRepository;
-    public WorkService(WorkRepository workRepository) {
+    private final PublisherRepository publisherRepository;
+    private final EditionRepository editionRepository;
+
+    public WorkService(WorkRepository workRepository, PublisherRepository publisherRepository, EditionRepository editionRepository) {
         this.workRepository = workRepository;
+        this.publisherRepository = publisherRepository;
+        this.editionRepository = editionRepository;
     }
 
 
@@ -39,9 +48,21 @@ public class WorkService {
 
     //Create Work (Work work)
     public WorkDto createWork(WorkDto workDto){
+        //Map the workDto to a work object
         Work work = Mapper.toEntity(workDto);
 
+        //Take the edition DTO's from the workDto, and add them to the work
+        for (EditionDto editionDto: workDto.editions()){
+            Edition editionToAdd = Mapper.toEntity(editionDto);
+            publisherRepository.save(editionToAdd.getPublisher());
+            //work.addEdition(editionToAdd);
+            //editionRepository.save(editionToAdd);
+
+        }
+
         work.setId(null);
+
+
         return Mapper.toDto(workRepository.save(work));
     }
 
