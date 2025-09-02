@@ -1,9 +1,12 @@
 package org.example.libraryrest.catalog.service;
 
+import org.example.libraryrest.catalog.dtos.Mapper;
+import org.example.libraryrest.catalog.dtos.WorkDto;
 import org.example.libraryrest.catalog.model.Work;
 import org.example.libraryrest.catalog.repository.WorkRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,28 +17,37 @@ public class WorkService {
         this.workRepository = workRepository;
     }
 
+
     //GetAllWorks
-    public List<Work> getAllWorks(){
-        return workRepository.findAll();
+    public List<WorkDto> getAllWorks(){
+        List<WorkDto> workDtos = new ArrayList<>();
+        List<Work> works = workRepository.findAll();
+        for (Work work : works) {
+            workDtos.add(Mapper.toDto(work));
+        }
+        return workDtos;
     }
 
     //Find work by ID (Long ID)
-    public Work getWorkById(Long id){
+    public WorkDto getWorkById(Long id){
         Optional<Work> work = workRepository.findById(id);
         if(work.isPresent()){
-            return work.get();
+            return Mapper.toDto(work.get());
         }
         throw new RuntimeException("Work not found with id " + id);
     }
 
     //Create Work (Work work)
-    public Work createWork(Work work){
+    public WorkDto createWork(WorkDto workDto){
+        Work work = Mapper.toEntity(workDto);
+
         work.setId(null);
-        return workRepository.save(work);
+        return Mapper.toDto(workRepository.save(work));
     }
 
-    public Work updateWork(Long id, Work work){
+    public WorkDto updateWork(Long id, WorkDto workDto){
         Optional<Work> findWork = workRepository.findById(id);
+        Work work = Mapper.toEntity(workDto);
         if(findWork.isPresent()){
             Work workToUpdate = findWork.get();
             workToUpdate.setWorkType(work.getWorkType());
@@ -43,7 +55,7 @@ public class WorkService {
             workToUpdate.setTitle(work.getTitle());
             workToUpdate.setDetails(work.getDetails());
             workToUpdate.setSubjects(work.getSubjects());
-            return workRepository.save(workToUpdate);
+            return Mapper.toDto(workRepository.save(workToUpdate));
         }
         throw new RuntimeException("Work not found with id " + id);
     }
@@ -52,7 +64,12 @@ public class WorkService {
         workRepository.deleteById(id);
     }
 
-    public List<Work> getWorksByTitle(String title){
-        return workRepository.findByTitleContaining(title);
+    public List<WorkDto> getWorksByTitle(String title){
+        List<WorkDto> workDtos = new ArrayList<>();
+        List<Work> works = workRepository.findByTitleContaining(title);
+        for (Work work : works) {
+            workDtos.add(Mapper.toDto(work));
+        }
+        return workDtos;
     }
 }

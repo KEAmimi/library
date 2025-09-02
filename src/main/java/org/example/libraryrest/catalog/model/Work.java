@@ -2,6 +2,9 @@ package org.example.libraryrest.catalog.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "works")
 public class Work {
@@ -15,6 +18,9 @@ public class Work {
     String authors;
     String details;
     String subjects;
+
+    @OneToMany(mappedBy = "work", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    List<Edition> editions = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -74,5 +80,26 @@ public class Work {
     }
 
     public Work() {
+    }
+
+    public void addEdition(Edition edition) {
+        this.editions.add(edition);
+        edition.setWork(this);
+    }
+
+    public void removeEdition(Edition edition) {
+        this.editions.remove(edition);
+        edition.setWork(null);
+    }
+
+    public List<Edition> getEditions() {
+        return editions;
+    }
+
+    public void removeEditions() {
+        this.editions.clear();
+        for (Edition edition : editions) {
+            edition.setWork(null);
+        }
     }
 }

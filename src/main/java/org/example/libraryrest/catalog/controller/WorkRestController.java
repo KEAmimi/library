@@ -1,5 +1,6 @@
 package org.example.libraryrest.catalog.controller;
 
+import org.example.libraryrest.catalog.dtos.WorkDto;
 import org.example.libraryrest.catalog.model.Work;
 import org.example.libraryrest.catalog.service.WorkService;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class WorkRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List> getWorks(@RequestParam(required = false) String title) {
+    public ResponseEntity<List<WorkDto>> getWorks(@RequestParam(required = false) String title) {
         if (title != null && !title.isEmpty()) {
             return ResponseEntity.ok(workService.getWorksByTitle(title));
         }
@@ -26,7 +27,7 @@ public class WorkRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Work> getWork(@PathVariable Long id) {
+    public ResponseEntity<WorkDto> getWork(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(workService.getWorkById(id));
         }
@@ -41,14 +42,14 @@ public class WorkRestController {
 //    }
 
     @PostMapping
-    public ResponseEntity<Work> createWork(@RequestBody Work work) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(workService.createWork(work));
+    public ResponseEntity<WorkDto> createWork(@RequestBody WorkDto workDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(workService.createWork(workDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Work> updateWork(@PathVariable Long id, @RequestBody Work work) {
+    public ResponseEntity<WorkDto> updateWork(@PathVariable Long id, @RequestBody WorkDto workDto) {
         try{
-            return ResponseEntity.ok(workService.updateWork(id, work));
+            return ResponseEntity.ok(workService.updateWork(id, workDto));
         }
         catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
