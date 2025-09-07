@@ -1,13 +1,11 @@
 package org.example.libraryrest.catalog.model;
 
 import jakarta.persistence.*;
+import org.example.libraryrest.common.model.BaseEntity;
 
 @Entity
-public class Edition {
+public class Edition extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     String editionNumber;
     int releaseYear;
@@ -19,8 +17,7 @@ public class Edition {
     @ManyToOne
     private Work work;
 
-    public Edition(Long id, String editionNumber, int releaseYear, String format, Publisher publisher, Work work) {
-        this.id = id;
+    public Edition(String editionNumber, int releaseYear, String format, Publisher publisher, Work work) {
         this.editionNumber = editionNumber;
         this.releaseYear = releaseYear;
         this.format = format;
@@ -31,13 +28,6 @@ public class Edition {
     public Edition() {
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getEditionNumber() {
         return editionNumber;

@@ -3,11 +3,11 @@ package org.example.libraryrest.catalog.service;
 import org.example.libraryrest.catalog.dtos.EditionDto;
 import org.example.libraryrest.catalog.dtos.Mapper;
 import org.example.libraryrest.catalog.dtos.WorkDto;
+import org.example.libraryrest.catalog.model.Author;
 import org.example.libraryrest.catalog.model.Edition;
+import org.example.libraryrest.catalog.model.Subject;
 import org.example.libraryrest.catalog.model.Work;
-import org.example.libraryrest.catalog.repository.EditionRepository;
-import org.example.libraryrest.catalog.repository.PublisherRepository;
-import org.example.libraryrest.catalog.repository.WorkRepository;
+import org.example.libraryrest.catalog.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,11 +19,15 @@ public class WorkService {
     private final WorkRepository workRepository;
     private final PublisherRepository publisherRepository;
     private final EditionRepository editionRepository;
+    private final SubjectRepository subjectRepository;
+    private final AuthorRepository authorRepository;
 
-    public WorkService(WorkRepository workRepository, PublisherRepository publisherRepository, EditionRepository editionRepository) {
+    public WorkService(WorkRepository workRepository, PublisherRepository publisherRepository, EditionRepository editionRepository, SubjectRepository subjectRepository, AuthorRepository authorRepository) {
         this.workRepository = workRepository;
         this.publisherRepository = publisherRepository;
         this.editionRepository = editionRepository;
+        this.subjectRepository = subjectRepository;
+        this.authorRepository = authorRepository;
     }
 
 
@@ -51,17 +55,22 @@ public class WorkService {
         //Map the workDto to a work object
         Work work = Mapper.toEntity(workDto);
 
+        for (Subject subject: work.getSubjects()){
+            subjectRepository.save(subject);
+        }
+
+        for (Author author: work.getAuthors()){
+            authorRepository.save(author);
+        }
+
         //Take the edition DTO's from the workDto, and add them to the work
-        for (EditionDto editionDto: workDto.editions()){
-            Edition editionToAdd = Mapper.toEntity(editionDto);
-            publisherRepository.save(editionToAdd.getPublisher());
+        for (Edition edition: work.getEditions()){
+            publisherRepository.save(edition.getPublisher());
             //work.addEdition(editionToAdd);
             //editionRepository.save(editionToAdd);
-
         }
 
         work.setId(null);
-
 
         return Mapper.toDto(workRepository.save(work));
     }
@@ -72,10 +81,31 @@ public class WorkService {
         if(findWork.isPresent()){
             Work workToUpdate = findWork.get();
             workToUpdate.setWorkType(work.getWorkType());
-            workToUpdate.setAuthors(work.getAuthors());
+
+            //Sync authors
+            workToUpdate.clearAuthors();
+            for (Author author: work.getAuthors()){
+                workToUpdate.addAuthor(author);
+                authorRepository.save(author);
+            }
+
             workToUpdate.setTitle(work.getTitle());
             workToUpdate.setDetails(work.getDetails());
-            workToUpdate.setSubjects(work.getSubjects());
+
+            //Set Subjects
+            workToUpdate.clearSubjects();
+            for (Subject subject: work.getSubjects()){
+                workToUpdate.addSubject(subject);
+                subjectRepository.save(subject);
+            }
+
+            //Set Editions
+            workToUpdate.removeEditions();
+            for (Edition edition: work.getEditions()){
+                workToUpdate.addEdition(edition);
+                publisherRepository.save(edition.getPublisher());
+            }
+
             return Mapper.toDto(workRepository.save(workToUpdate));
         }
         throw new RuntimeException("Work not found with id " + id);

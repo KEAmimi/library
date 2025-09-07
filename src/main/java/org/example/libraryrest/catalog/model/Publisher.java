@@ -1,37 +1,23 @@
 package org.example.libraryrest.catalog.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import org.example.libraryrest.common.model.BaseEntity;
 
 @Entity
-public class Publisher {
+public class Publisher extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
 
     String name;
     String address;
     String contactInfo;
 
-    public Publisher(Long id, String name, String address, String contactInfo) {
-        this.id = id;
+    public Publisher(String name, String address, String contactInfo) {
         this.name = name;
         this.address = address;
         this.contactInfo = contactInfo;
     }
 
     public Publisher() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {

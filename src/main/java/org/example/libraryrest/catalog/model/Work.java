@@ -1,34 +1,33 @@
 package org.example.libraryrest.catalog.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import org.example.libraryrest.common.model.BaseEntity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
-@Table(name = "works")
-public class Work {
+public class Work extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
 
     String title;
+
+    @Enumerated(EnumType.STRING)
     WorkType workType;
-    String authors;
     String details;
-    String subjects;
 
     @OneToMany(mappedBy = "work", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     List<Edition> editions = new ArrayList<>();
 
-    public Long getId() {
-        return id;
-    }
+    @ManyToMany
+    Set<Subject> subjects = new HashSet<>();
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @ManyToMany
+    @JsonBackReference
+    Set<Author> authors = new HashSet<>();
 
     public String getTitle() {
         return title;
@@ -46,13 +45,6 @@ public class Work {
         this.workType = workType;
     }
 
-    public String getAuthors() {
-        return authors;
-    }
-
-    public void setAuthors(String authors) {
-        this.authors = authors;
-    }
 
     public String getDetails() {
         return details;
@@ -62,16 +54,8 @@ public class Work {
         this.details = details;
     }
 
-    public String getSubjects() {
-        return subjects;
-    }
 
-    public void setSubjects(String subjects) {
-        this.subjects = subjects;
-    }
-
-    public Work(Long id, String title, WorkType workType, String authors, String details, String subjects) {
-        this.id = id;
+    public Work(String title, WorkType workType, Set<Author> authors, String details, Set<Subject> subjects) {
         this.title = title;
         this.workType = workType;
         this.authors = authors;
@@ -81,6 +65,8 @@ public class Work {
 
     public Work() {
     }
+
+    //Edition Management
 
     public void addEdition(Edition edition) {
         this.editions.add(edition);
@@ -97,9 +83,51 @@ public class Work {
     }
 
     public void removeEditions() {
-        this.editions.clear();
         for (Edition edition : editions) {
             edition.setWork(null);
         }
+        this.editions.clear();
     }
+
+    //Author management, synchronicity required
+
+    public Set<Author> getAuthors() {
+        return authors;
+    }
+
+    public void addAuthor(Author author) {
+        this.authors.add(author);
+        author.addWork(this);
+    }
+    public void removeAuthor(Author author) {
+        this.authors.remove(author);
+        author.removeWork(this);
+    }
+    public void clearAuthors() {
+        this.authors.clear();
+        for (Author author : authors) {
+            author.removeWork(this);
+        }
+    }
+
+    //Subject management. No Synchronisity required
+
+
+    public Set<Subject> getSubjects() {
+        return subjects;
+    }
+
+    public void addSubject(Subject subject) {
+        this.subjects.add(subject);
+    }
+
+    public void removeSubject(Subject subject) {
+        this.subjects.remove(subject);
+    }
+
+    public void clearSubjects() {
+        this.subjects.clear();
+    }
+
+
 }
