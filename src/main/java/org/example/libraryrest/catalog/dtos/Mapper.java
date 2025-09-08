@@ -101,6 +101,7 @@ public class Mapper {
     //Author to Entity
     public static Author toEntity(AuthorDto authorDto) {
         Author author = new Author();
+        author.setId(authorDto.id());
         author.setName(authorDto.name());
         return author;
     }
@@ -108,6 +109,7 @@ public class Mapper {
     //Subject to Entity
     public static Subject toEntity(SubjectDto subjectDto) {
         Subject subject = new Subject();
+        subject.setId(subjectDto.id());
         subject.setName(subjectDto.name());
         return subject;
     }

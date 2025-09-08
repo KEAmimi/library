@@ -21,13 +21,17 @@ public class WorkService {
     private final EditionRepository editionRepository;
     private final SubjectRepository subjectRepository;
     private final AuthorRepository authorRepository;
+    private final AuthorService authorService;
+    private final SubjectService subjectService;
 
-    public WorkService(WorkRepository workRepository, PublisherRepository publisherRepository, EditionRepository editionRepository, SubjectRepository subjectRepository, AuthorRepository authorRepository) {
+    public WorkService(WorkRepository workRepository, PublisherRepository publisherRepository, EditionRepository editionRepository, SubjectRepository subjectRepository, AuthorRepository authorRepository, AuthorService authorService, SubjectService subjectService) {
         this.workRepository = workRepository;
         this.publisherRepository = publisherRepository;
         this.editionRepository = editionRepository;
         this.subjectRepository = subjectRepository;
         this.authorRepository = authorRepository;
+        this.authorService = authorService;
+        this.subjectService = subjectService;
     }
 
 
@@ -55,12 +59,15 @@ public class WorkService {
         //Map the workDto to a work object
         Work work = Mapper.toEntity(workDto);
 
+        //Add the subjects to the work
         for (Subject subject: work.getSubjects()){
-            subjectRepository.save(subject);
+            subjectService.saveIfNotExists(subject);
         }
 
+        //Add the authors to the work
         for (Author author: work.getAuthors()){
-            authorRepository.save(author);
+            authorService.saveIfNotExists(author);
+            //authorRepository.save(author);
         }
 
         //Take the edition DTO's from the workDto, and add them to the work
