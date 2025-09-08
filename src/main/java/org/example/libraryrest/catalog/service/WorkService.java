@@ -93,7 +93,7 @@ public class WorkService {
             workToUpdate.clearAuthors();
             for (Author author: work.getAuthors()){
                 workToUpdate.addAuthor(author);
-                authorRepository.save(author);
+                authorService.saveIfNotExists(author);
             }
 
             workToUpdate.setTitle(work.getTitle());
@@ -103,7 +103,7 @@ public class WorkService {
             workToUpdate.clearSubjects();
             for (Subject subject: work.getSubjects()){
                 workToUpdate.addSubject(subject);
-                subjectRepository.save(subject);
+                subjectService.saveIfNotExists(subject);
             }
 
             //Set Editions
