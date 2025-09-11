@@ -1,5 +1,6 @@
 package org.example.libraryrest.catalog.service;
 
+import org.example.libraryrest.catalog.Exceptions.NotFoundException;
 import org.example.libraryrest.catalog.dtos.EditionDto;
 import org.example.libraryrest.catalog.dtos.Mapper;
 import org.example.libraryrest.catalog.dtos.WorkDto;
@@ -51,7 +52,7 @@ public class WorkService {
         if(work.isPresent()){
             return Mapper.toDto(work.get());
         }
-        throw new RuntimeException("Work not found with id " + id);
+        throw new NotFoundException("Work not found with id " + id);
     }
 
     //Create Work (Work work)
@@ -115,7 +116,7 @@ public class WorkService {
 
             return Mapper.toDto(workRepository.save(workToUpdate));
         }
-        throw new RuntimeException("Work not found with id " + id);
+        throw new NotFoundException("Work not found with id " + id);
     }
 
     public void deleteWork(Long id){

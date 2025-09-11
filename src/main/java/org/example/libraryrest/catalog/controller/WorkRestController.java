@@ -1,5 +1,6 @@
 package org.example.libraryrest.catalog.controller;
 
+import org.example.libraryrest.catalog.Exceptions.NotFoundException;
 import org.example.libraryrest.catalog.dtos.WorkDto;
 import org.example.libraryrest.catalog.model.Work;
 import org.example.libraryrest.catalog.service.WorkService;
@@ -32,7 +33,7 @@ public class WorkRestController {
             return ResponseEntity.ok(workService.getWorkById(id));
         }
         catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            throw new NotFoundException(e.getMessage());
         }
     }
 
@@ -52,7 +53,7 @@ public class WorkRestController {
             return ResponseEntity.ok(workService.updateWork(id, workDto));
         }
         catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            throw new NotFoundException(e.getMessage());
         }
     }
 
@@ -63,7 +64,7 @@ public class WorkRestController {
             return ResponseEntity.noContent().build();
         }
         catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            throw new NotFoundException(e.getMessage());
         }
     }
 
